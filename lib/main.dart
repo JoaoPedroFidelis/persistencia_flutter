@@ -7,9 +7,6 @@ import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart' show databaseFactor
 
 import 'package:exemplo/view/pessoas_page.dart';
 
-// ---------------------------
-// 3) APP
-// ---------------------------
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

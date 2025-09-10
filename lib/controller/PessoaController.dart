@@ -10,10 +10,12 @@ class PessoaController {
   int? editingId;
   bool isSaving = false;
 
-  void load(Database db) {
+  void load(Database db) async {
     pessoaRepository.database = db;
     refreshPessoas();
   }
+
+  // CRUD
   void refreshPessoas() {
     futurePessoas = pessoaRepository.getAll();
   }
@@ -48,6 +50,7 @@ class PessoaController {
     idadeCtrl.text = p.idade.toString();
   }
 
+  // VALIDATES
   String? validateIdade(String ?v){
     if (v == null || v.trim().isEmpty) return 'Informe a idade';
     final n = int.tryParse(v.trim());
@@ -63,6 +66,7 @@ class PessoaController {
     return null;
   }
 
+  // FUNÇÕES GERAIS
   bool isEditing(){
     return editingId != null;
   }

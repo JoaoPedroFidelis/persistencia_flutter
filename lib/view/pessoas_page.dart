@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 import 'package:exemplo/repository/DatabaseInitializer.dart';
+import 'package:exemplo/controller/FormController.dart';
 import 'package:exemplo/controller/PessoaController.dart';
 import 'package:exemplo/domain/Pessoa.dart';
 
@@ -16,16 +17,19 @@ class _PessoasPageState extends State<PessoasPage> {
   final _formKey = GlobalKey<FormState>();
   final _nomeCtrl = TextEditingController();
   final _idadeCtrl = TextEditingController();
+  List<TextEditingController> get inputListAction{
+    return [_nomeCtrl, _idadeCtrl];
+  }
 
   int _reloadTick = 0;
   bool _defaultLoad = false;
 
+  late FormController formController;
   late PessoaController pessoaController;
 
   @override
   void dispose() {
-    _nomeCtrl.dispose();
-    _idadeCtrl.dispose();
+    formController.dispose(inputListAction);
     super.dispose();
   }
   @override
@@ -44,11 +48,12 @@ class _PessoasPageState extends State<PessoasPage> {
   loadMain() async {
     final db = await loadDb();
 
+    formController = FormController();
     pessoaController = PessoaController();
-    dynamic controllers = [pessoaController];
 
+    dynamic controllers = [pessoaController];
     for (var i = 0; i < controllers.length; i++) {
-      controllers[i].load(db);
+      await controllers[i].load(db);
     }
     _defaultLoad = true;
     refreshAction();
@@ -58,18 +63,24 @@ class _PessoasPageState extends State<PessoasPage> {
   void clearFormAction() {
     pessoaController.stopEditing();
     _formKey.currentState?.reset();
-    _nomeCtrl.clear();
-    _idadeCtrl.clear();
+    formController.clear(inputListAction);
   }
   void editAction(Pessoa p) {
     pessoaController.edit(p, _nomeCtrl, _idadeCtrl);
     setState(() => pessoaController.isEditing());
   }
-  void refreshAction() {
-    pessoaController.refreshPessoas();
-    setState(() {
-      _reloadTick++;
-    });
+  void refreshAction([String? act]) {
+    if(act == null){
+      pessoaController.refreshPessoas();
+      setState(() { _reloadTick++; });
+      return;
+    }
+
+    switch(act.toUpperCase()){
+      case 'EDIT':
+        setState(() => pessoaController.isEditing());
+        break;
+    }
   }
 
   // BUILD
@@ -125,7 +136,7 @@ class _PessoasPageState extends State<PessoasPage> {
                       validator: (v) { return pessoaController.validateIdade(v); },
                       onFieldSubmitted: (_) {
                         if (!pessoaController.isSaving && _formKey.currentState!.validate()) {
-                          pessoaController.save(_nomeCtrl.text, int.parse(_idadeCtrl.text.trim()));
+                          pessoaController.save(formController.string(_nomeCtrl), formController.intParse(_idadeCtrl));
                         }
                       },
                     ),
@@ -136,8 +147,7 @@ class _PessoasPageState extends State<PessoasPage> {
                           child: ElevatedButton.icon(
                             onPressed: pessoaController.isSaving ? null : () {
                                     if (_formKey.currentState!.validate()) {
-                                      pessoaController.save(_nomeCtrl.text, int.parse(_idadeCtrl.text.trim()),
-                                      );
+                                      pessoaController.save(formController.string(_nomeCtrl), formController.intParse(_idadeCtrl));
                                       pessoaController.isSaving = false;
                                       clearFormAction();
                                       refreshAction();
@@ -157,7 +167,7 @@ class _PessoasPageState extends State<PessoasPage> {
                               onPressed: () {
                                 pessoaController.editingId = null;
                                 clearFormAction();
-                                setState(() => pessoaController.isEditing());
+                                refreshAction("EDIT");
                               },
                               icon: const Icon(Icons.close),
                               label: const Text('Cancelar edição'),
