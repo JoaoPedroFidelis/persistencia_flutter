@@ -45,40 +45,40 @@ class _PessoasPageState extends State<PessoasPage> {
   }
 
   // CARREGAMENTO INICIAL
-  loadMain() async {
-    final db = await loadDb();
+  loadMain() async { // função de carregamento principal, executada para carregar o resto
+    final db = await loadDb(); // roda o banco
 
     formController = FormController();
     pessoaController = PessoaController();
 
-    dynamic controllers = [pessoaController];
+    dynamic controllers = [pessoaController]; // lista de controllers com banco
     for (var i = 0; i < controllers.length; i++) {
-      await controllers[i].load(db);
+      await controllers[i].load(db); // adiciona instancia de banco em cada controller da lista
     }
     _defaultLoad = true;
-    refreshAction();
+    refreshAction(); // atualiza tela
   }
 
   // AÇÕES DO FRONT
-  void clearFormAction() {
+  void clearFormAction() { // limpa campos de formulario
     pessoaController.stopEditing();
     _formKey.currentState?.reset();
     formController.clear(inputListAction);
   }
-  void editAction(Pessoa p) {
+  void editAction(Pessoa p) { // começa procedimento de editar
     pessoaController.edit(p, _nomeCtrl, _idadeCtrl);
-    setState(() => pessoaController.isEditing());
+    refreshAction('EDIT');
   }
-  void refreshAction([String? act]) {
-    if(act == null){
+  void refreshAction([String? act]) { // ação de atualizar tela
+    if(act == null){ // caso ação seja nula, recarregar tela toda
       pessoaController.refreshPessoas();
       setState(() { _reloadTick++; });
       return;
     }
 
-    switch(act.toUpperCase()){
+    switch(act.toUpperCase()){ // caso seja ação especifica conferir qual
       case 'EDIT':
-        setState(() => pessoaController.isEditing());
+        setState(() => pessoaController.isEditing()); // atualiza na tela se pessoa esta sendo editada
         break;
     }
   }
@@ -167,7 +167,7 @@ class _PessoasPageState extends State<PessoasPage> {
                               onPressed: () {
                                 pessoaController.editingId = null;
                                 clearFormAction();
-                                refreshAction("EDIT");
+                                refreshAction('EDIT');
                               },
                               icon: const Icon(Icons.close),
                               label: const Text('Cancelar edição'),

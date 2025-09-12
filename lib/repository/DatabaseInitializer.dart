@@ -10,7 +10,8 @@ import '../domain/Pessoa.dart';
 class DatabaseInitializer {
   DatabaseInitializer._internal();
   static final DatabaseInitializer instance = DatabaseInitializer._internal();
-  static const String _dbName = 'meu_banco.db';
+  static const String _dbName = 'meu_banco.db'; // nome do banco
+  bool running = false; // banco esta rodando como esperado
 
   Database? _db;
   final List<String> tables = [];
@@ -24,10 +25,11 @@ class DatabaseInitializer {
   Future<Database> _initDB() async {
     // Função chamada na criação do banco
     Future<void> _onCreate(Database db, int version) async {
-      tables.add(Pessoa.createSql);
+      tables.add(Pessoa.createSql); // adiciona tabela de tabela Pessoa
       for (var sql in tables) {
-        await db.execute(sql);
+        await db.execute(sql); // executa sql's caso se tenha mais de uma tabela
       }
+      running = true;
     }
 
     if (kIsWeb) {

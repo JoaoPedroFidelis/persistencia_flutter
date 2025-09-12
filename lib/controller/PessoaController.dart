@@ -16,11 +16,15 @@ class PessoaController {
   }
 
   // CRUD
-  void refreshPessoas() {
+  void refreshPessoas() { // atualiza lista de pessoas cadastradas
     futurePessoas = pessoaRepository.getAll();
   }
 
-  Future<void> save(String nome, int idade) async {
+  Future<Pessoa?> getById(int id) { // encontra pessoa por id
+    return pessoaRepository.getById(id, Pessoa.fromMap);
+  }
+
+  Future<void> save(String nome, int idade) async  {// salva pessoa
     isSaving = true;
     nome = nome.trim().toLowerCase();
 
@@ -28,9 +32,9 @@ class PessoaController {
 
     try {
       if (editingId == null) {
-        await pessoaRepository.insert(p);
+        await pessoaRepository.insert(p); // cria nova pessoa
       } else {
-        await pessoaRepository.update(p);
+        await pessoaRepository.update(p); // atualiza pessoa caso tenha id
       }
       stopEditing();
       refreshPessoas();
@@ -39,26 +43,26 @@ class PessoaController {
     }
   }
 
-  Future<void> delete(int id) async {
+  Future<void> delete(int id) async { // deleta pessoa
     await pessoaRepository.delete(id);
     refreshPessoas();
   }
 
-  void edit(Pessoa p, TextEditingController nomeCtrl, TextEditingController idadeCtrl) {
+  void edit(Pessoa p, TextEditingController nomeCtrl, TextEditingController idadeCtrl) { // começa processo de edição
     editingId = p.id;
     nomeCtrl.text = p.nome;
     idadeCtrl.text = p.idade.toString();
   }
 
   // VALIDATES
-  String? validateIdade(String ?v){
+  String? validateIdade(String ?v){ // validar se campo idade é valido
     if (v == null || v.trim().isEmpty) return 'Informe a idade';
     final n = int.tryParse(v.trim());
     if (n == null || n < 0 || n > 150) return 'Idade inválida';
 
     return null;
   }
-  String? validateNome(String ?v){
+  String? validateNome(String ?v){ // validar se campo nome é valido
     if (v == null || v.trim().isEmpty) return 'Informe o nome';
     if (v.trim().length < 2) return 'Nome muito curto';
     if (v.contains(RegExp(r'[0-9]'))) return 'Nome não pode ter números';
@@ -67,10 +71,10 @@ class PessoaController {
   }
 
   // FUNÇÕES GERAIS
-  bool isEditing(){
+  bool isEditing(){ // retorna se esta em processo de edição
     return editingId != null;
   }
-  void stopEditing() {
+  void stopEditing() { // para processo de edição
     editingId = null;
   }
 }

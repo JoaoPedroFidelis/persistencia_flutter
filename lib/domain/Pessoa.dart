@@ -2,14 +2,14 @@ import 'package:exemplo/domain/DbTable.dart';
 
 class Pessoa extends DbTable {
   // VARIAVEIS DE INICIAÇÃO
-  static const String table = 'pessoas';
+  static const String table = 'pessoas'; // nome da tabela no banco
   static const String createSql = '''
     CREATE TABLE $table(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nome TEXT NOT NULL,
       idade INTEGER NOT NULL
     )
-  ''';
+  '''; // comando SQL para criar a tabela
   
   // ATRIBUTOS
   final String nome;
@@ -45,7 +45,7 @@ class Pessoa extends DbTable {
     return Pessoa(
       id: map['id'] as int?,
       nome: map['nome'] as String,
-      idade: (map['idade'] as num).toInt(),
+      idade: map['idade'] as int,
     );
   }
 
