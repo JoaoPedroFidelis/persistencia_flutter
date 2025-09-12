@@ -1,0 +1,111 @@
+@startuml
+
+class FormController {
+  + int intParse(TextEditingController input)
+  + double doubleParse(TextEditingController input)
+  + String string(TextEditingController input)
+  + void dispose(List<TextEditingController> inputs)
+  + void clear(List<TextEditingController> inputs)
+}
+
+class PessoaController {
+  - PessoaRepository pessoaRepository
+  - Future<List<Pessoa>>? futurePessoas
+  - int? editingId
+  - bool isSaving
+  + void load(Database db)
+  + void refreshPessoas()
+  + Future<Pessoa?> getById(int id)
+  + Future<void> save(String nome, int idade)
+  + Future<void> delete(int id)
+  + void edit(Pessoa p, TextEditingController nomeCtrl, TextEditingController idadeCtrl)
+  + String? validateIdade(String ?v)
+  + String? validateNome(String ?v)
+  + bool isEditing()
+  + void stopEditing()
+}
+
+class DbTable {
+  {static} const String table
+  {static} const String createSql
+  - int? id
+  + DbTable({int? id})
+  + DbTable copyWith({int? id})
+  + Map<String, dynamic> toMap()
+  + DbTable fromMap(Map<String, dynamic> map)
+}
+
+class Pessoa {
+  {static} const String table
+  {static} const String createSql
+  - String nome
+  - int idade
+  + Pessoa copyWith({int? id, String? nome, int? idade})
+  + Map<String, dynamic> toMap()
+  + Pessoa fromMap(Map<String, dynamic> map)
+}
+
+class DatabaseInitializer {
+  - DatabaseInitializer._internal()
+  {static} DatabaseInitializer instance
+  {static} const String _dbName
+  - bool running
+  - Database? _db
+  - List<String> tables
+  + Future<Database> get database
+  - Future<Database> _initDB()
+}
+
+abstract class TableRepository<T extends DbTable> {
+  - String table
+  - Database? _db
+  + Future<Database> get database
+  + set database(Database db)
+  + Future<int> insert(T obj)
+  + Future<int> update(T obj)
+  + Future<int> delete(int id)
+  + Future<T?> getById(int id, T Function(Map<String, dynamic>) fromMap)
+  + dynamic convert(Map<String, dynamic> map)
+  + Future<List<T>> getAll()
+}
+
+class PessoaRepository {
+  - String table
+  + Pessoa convert(Map<String, dynamic> map)
+}
+
+class PessoasPage {
+  + PessoasPage({super.key})
+  + State<PessoasPage> createState()
+}
+
+class _PessoasPageState {
+  - GlobalKey<FormState> _formKey
+  - TextEditingController _nomeCtrl
+  - TextEditingController _idadeCtrl
+  - int _reloadTick
+  - bool _defaultLoad
+  - FormController formController
+  - PessoaController pessoaController
+  + List<TextEditingController> get inputListAction
+  + void dispose()
+  + void initState()
+  + Future<Database> loadDb()
+  + loadMain()
+  + void clearFormAction()
+  + void editAction(Pessoa p)
+  + void refreshAction([String? act])
+  + Widget build(BuildContext context)
+}
+
+Pessoa --|> DbTable
+PessoaRepository --|> TableRepository
+PessoaController --> PessoaRepository
+_PessoasPageState --> PessoaController
+_PessoasPageState --> FormController
+PessoasPage --> _PessoasPageState
+DatabaseInitializer --> DbTable
+PessoaController --> Pessoa
+TableRepository --> DbTable
+
+@enduml

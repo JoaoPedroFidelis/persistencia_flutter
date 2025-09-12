@@ -2,9 +2,7 @@ import 'package:exemplo/domain/DbTable.dart';
 import 'package:sqflite/sqflite.dart';
 
 abstract class TableRepository<T extends DbTable> {
-  final String table; // tabela do banco
-
-  TableRepository(this.table);
+  String table = ''; // tabela do banco
 
   Database? _db;
 

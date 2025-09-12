@@ -27,7 +27,8 @@ Essa divisão em camadas garante uma separação de responsabilidades bem defini
         > pessoas_page.dart
         > main.dart
 ```
-
+### Diagrama de Classes
+![Diagrama de Classes](./uml.png)
 
 ### 1. **Domain**
 - Define as entidades centrais do sistema (`Pessoa`, `DbTable`).  
