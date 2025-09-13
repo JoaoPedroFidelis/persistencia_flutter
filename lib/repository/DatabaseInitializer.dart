@@ -23,6 +23,13 @@ class DatabaseInitializer {
   }
 
   Future<Database> _initDB() async {
+    if (kIsWeb) {
+      databaseFactory = databaseFactoryFfiWeb;
+    } else if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
+    
     // Função chamada na criação do banco
     Future<void> _onCreate(Database db, int version) async {
       tables.add(Pessoa.createSql); // adiciona tabela de tabela Pessoa
